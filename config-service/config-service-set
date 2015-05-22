@@ -1,0 +1,8 @@
+#!/bin/sh
+echo -n "config-service-set: $1 = $2 ... "
+redis-cli \
+	-h "$APOLLO13_CONFIG_SERVICE_HOST" \
+	-p "$APOLLO13_CONFIG_SERVICE_PORT" \
+	-a "$APOLLO13_CONFIG_SERVICE_PASSWORD" \
+	-n "$APOLLO13_CONFIG_SERVICE_DB" \
+	set "$1" "$2"

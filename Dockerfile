@@ -7,10 +7,18 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get -y upgrade
 
-# Install GIT for accessing repositories, MC just for ease of use when connecting interactively
+# Install:
+# 1. GIT for accessing repositories
+# 2. MC and telnet just for convenience
+# 3. redis-cli for obtaining configuration
+# 4. python2, curl for installing AWS cli
 RUN apt-get -y install \
 	git \
-	mc
+	mc \
+    redis-tools \
+    curl \
+    python \
+    telnet
 
 # Install SSH key for accessing GIT repositories
 RUN mkdir /root/.ssh/
@@ -19,5 +27,22 @@ RUN chmod 600 /root/.ssh/id_rsa && \
     touch /root/.ssh/known_hosts && \
     ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
 
+# Install AWS CLI
+RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && \
+    unzip awscli-bundle.zip && \
+    ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
+    rm -rf ./awscli-bundle && \
+    rm ./awscli-bundle.zip
+
 # Setting TERM to flawlessly run console applications like mc, nano when connecting interactively via docker exec
 ENV TERM xterm
+
+# Add client for configuration service
+ADD config-service /usr/local/bin
+RUN chmod 755 /usr/local/bin/config-service-*
+
+# Entrypoint for initializing environment variables with container configuration
+ADD env.sh /env.sh
+RUN chmod 755 env.sh
+
+ENTRYPOINT [ "/env.sh" ]
