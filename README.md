@@ -11,6 +11,12 @@ Docker container used as base for all other Apollo13 docker containers. Contains
     * loads settings required to initialize the container from Redis configuration database
     * set the current IP address into environment variables named *CONTAINER_IPV4_ADDRESS* and *CONTAINER_IPV6_ADDRESS*
 
+Build of this container is located in private Docker hub repository. In order to use private repositories you must provide your login credentials:
+
+	$ docker login
+
+*docker login* needs to be executed just once, as it stores the authentication key in *~/.dockercfg* for future uses.
+
 ## Redis configuration database ##
 
 A Redis database is required to store configuration settings.
