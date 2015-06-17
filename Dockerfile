@@ -3,22 +3,25 @@ MAINTAINER Bohdan Kolecek <bohdan.kolecek@apollo13.cz>
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# Update aptitude
-RUN apt-get update && \
-    apt-get -y upgrade
-
 # Install:
 # 1. GIT for accessing repositories
 # 2. MC and telnet just for convenience
 # 3. redis-cli for obtaining configuration
 # 4. python2, curl for installing AWS cli
-RUN apt-get -y install \
-	git \
-	mc \
-    redis-tools \
-    curl \
-    python \
-    telnet
+
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get -y install \
+        git \
+        mc \
+        redis-tools \
+        curl \
+        python \
+        telnet && \
+# Clean up
+
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install SSH key for accessing GIT repositories
 RUN mkdir /root/.ssh/
