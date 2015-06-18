@@ -2,7 +2,14 @@
 
 if [ "$ENVIRONMENT" != "development" ]
 then
+
     aws s3 cp s3://apollo13-ecs-config/config-service.sh /etc/profile.d && source /etc/profile
+
+    if [ "$APOLLO13_GIT_DIRECTORY" -a "$APOLLO13_GIT_PULL_LATEST" = true ]
+    then
+        ./git-pull.sh
+    fi
+
 fi
 
 export APOLLO13_CONFIG_SERVICE_HOST=${APOLLO13_CONFIG_SERVICE_HOST:-config-service}
@@ -19,7 +26,7 @@ export APOLLO13_CONFIG_SERVICE_DB=${APOLLO13_CONFIG_SERVICE_DB:-0}
 # rabbitmq001-master_host:rabbitmq_host
 
 if [ "$SERVER_NAME" ]
-then	
+then
 	dependencies=`config-service-get ${SERVER_NAME}_config`
 	for configOption in $dependencies
 	do

@@ -46,6 +46,7 @@ RUN chmod 755 /usr/local/bin/config-service-*
 
 # Entrypoint for initializing environment variables with container configuration
 ADD env.sh /env.sh
-RUN chmod 755 env.sh
+ADD git-pull.sh /git-pull.sh
+RUN chmod 755 env.sh git-pull.sh
 
 ENTRYPOINT [ "/env.sh" ]

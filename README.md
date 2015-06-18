@@ -136,3 +136,19 @@ It is possible to update the desired number of tasks for service from CLI using 
 Example:
 
     $ aws ecs update-service --service api-worker --desired-count 10
+
+## GIT integration ##
+
+The container can automatically launch *git pull* (and *composer install* too if *composer.json* is present) to
+accomplish launch with the latest code. This functionality is skipped when container is launched in development environment.
+
+To enable this functionality you need to define the following environment variables in *Dockerfile* of a container
+derived from *apollo13/ubuntu*
+
+    ENV APOLLO13_GIT_DIRECTORY /var/www/myproject
+    ENV APOLLO13_GIT_PULL_LATEST true
+
+*APOLLO13_GIT_DIRECTORY* contains root path to your GIT project inside the container, *APOLLO13_GIT_PULL_LATEST* enables
+the actual pulling on launching the container.
+
+To pull from different branch than *master* specify the branch name in the *APOLLO13_GIT_BRANCH* environment variable.
