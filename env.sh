@@ -1,11 +1,11 @@
 #!/bin/bash
 
-if [ "$ENVIRONMENT" != "development" ]
+if [ "$ENVIRONMENT" = "production" -o "$ENVIRONMENT" = "staging" ]
 then
 
     aws s3 cp s3://apollo13-ecs-config/config-service.sh /etc/profile.d && source /etc/profile
 
-    if [ "$APOLLO13_GIT_DIRECTORY" -a "$APOLLO13_GIT_PULL_LATEST" = true ]
+    if [ "$APOLLO13_GIT_DIRECTORY" -a "$APOLLO13_GIT_PULL_LATEST" = true -a ! -f /.container_launched ]
     then
         ./git-pull.sh
     fi
@@ -40,7 +40,7 @@ then
 			configOptionAlias=$configOption
 		fi
 
-		configOptionEnv="APOLLO13_`echo ${configOptionAlias/-/_} | tr '[:lower:]' '[:upper:]'`"
+		configOptionEnv="APOLLO13_`echo ${configOptionAlias//-/_} | tr '[:lower:]' '[:upper:]'`"
 		export ${configOptionEnv}=`config-service-get $configOption`
 
 	done
@@ -48,5 +48,7 @@ fi
 
 export CONTAINER_IPV4_ADDRESS="`ip addr list eth0 | grep "inet "  | cut -d' ' -f6 | cut -d/ -f1`"
 export CONTAINER_IPV6_ADDRESS="`ip addr list eth0 | grep "inet6 " | cut -d' ' -f6 | cut -d/ -f1`"
+
+touch /.container_launched
 
 exec "$@"

@@ -17,22 +17,48 @@ then
     exit 1
 fi
 
-git fetch origin > /dev/null
+GIT_CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-LOCAL_REVISION=$(git rev-parse @)
-REMOTE_REVISION=$(git rev-parse @{u})
-
-if [ $LOCAL_REVISION = $REMOTE_REVISION ]
+if [ ${APOLLO13_GIT_BRANCH} != ${GIT_CURRENT_BRANCH} -a -d .git ]
 then
-    # already running latest revision, do nothing
-    exit 0
+
+    # A branch $APOLLO13_GIT_BRANCH was requested, but different branch was cloned. We cannot
+    # switch branch because we use shallow clone. Therefore deleting the current clone and cloning
+    # correct branch instead.
+    #
+    # This completely erases the content of $APOLLO13_GIT_DIRECTORY, therefore adding a safety
+    # check that the directory contains .git to prevent accidental deletion of incorrect directory
+    # (i.e. when incorrect environment variables would be set).
+
+    echo "Cloning latest $APOLLO13_GIT_DIRECTORY branch $APOLLO13_GIT_BRANCH"
+
+    GIT_REMOTE_REPOSITORY=$(git config --get remote.origin.url)
+    find -mindepth 1 -delete
+    git clone --depth 1 --branch ${APOLLO13_GIT_BRANCH} ${GIT_REMOTE_REPOSITORY} .
+
+else
+
+    # Pulling the same branch that was cloned (e.g. in Dockerfile), pull only the changes since last
+    # clone or pull.
+
+    git fetch origin > /dev/null
+
+    LOCAL_REVISION=$(git rev-parse @)
+    REMOTE_REVISION=$(git rev-parse @{u})
+
+    if [ $LOCAL_REVISION = $REMOTE_REVISION ]
+    then
+        # already running latest revision, do nothing
+        exit 0
+    fi
+
+    echo "Pulling latest $APOLLO13_GIT_DIRECTORY branch $APOLLO13_GIT_BRANCH"
+
+    git checkout origin/$APOLLO13_GIT_BRANCH
+    git branch -D $APOLLO13_GIT_BRANCH
+    git checkout -b $APOLLO13_GIT_BRANCH
+
 fi
-
-echo "Pulling latest $APOLLO13_GIT_DIRECTORY"
-
-git checkout origin/$APOLLO13_GIT_BRANCH
-git branch -D $APOLLO13_GIT_BRANCH
-git checkout -b $APOLLO13_GIT_BRANCH
 
 if [ -f composer.json ]
 then
