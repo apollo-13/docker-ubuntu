@@ -37,6 +37,9 @@ RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.
     rm -rf ./awscli-bundle && \
     rm ./awscli-bundle.zip
 
+# Bash aliases
+RUN echo "alias gitkc=\"git log --graph --oneline --all --decorate --pretty=format:\\\"%C(auto)%h%d %s (%C(green)%cr%C(reset) via %C(green)%cn%C(reset))\\\"\"" >> /etc/bash.bashrc
+
 # Setting TERM to flawlessly run console applications like mc, nano when connecting interactively via docker exec
 ENV TERM xterm
 
