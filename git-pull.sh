@@ -62,5 +62,5 @@ fi
 
 if [ -f composer.json ]
 then
-    composer install
+    composer install --prefer-dist --no-interaction
 fi

@@ -25,7 +25,7 @@ RUN apt-get update && \
 
 # Install SSH key for accessing GIT repositories
 RUN mkdir /root/.ssh/
-ADD keys/id_rsa /root/.ssh/id_rsa
+ADD config/ssh-keys/id_rsa /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa && \
     touch /root/.ssh/known_hosts && \
     ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
@@ -51,5 +51,8 @@ RUN chmod 755 /usr/local/bin/config-service-*
 ADD env.sh /env.sh
 ADD git-pull.sh /git-pull.sh
 RUN chmod 755 env.sh git-pull.sh
+
+# Access token for reading repositories from GitHub via --prefer-dist to speed up Composer
+ADD config/composer /root/.composer
 
 ENTRYPOINT [ "/env.sh" ]
