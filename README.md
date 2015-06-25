@@ -152,3 +152,8 @@ derived from *apollo13/ubuntu*
 the actual pulling on launching the container.
 
 To pull from different branch than *master* specify the branch name in the *APOLLO13_GIT_BRANCH* environment variable.
+
+## Running Docker containers on Linux development host ##
+
+When running Docker on your development host, the TCP/IP ports exposed by Docker may collide with ports of other services already
+ running on your development host. The workaround for this is to run Docker inside a virtual machine using [boot2docker](https://github.com/boot2docker/boot2docker-cli).
