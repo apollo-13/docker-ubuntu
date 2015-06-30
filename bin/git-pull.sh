@@ -64,3 +64,8 @@ if [ -f composer.json ]
 then
     composer install --prefer-dist --no-interaction
 fi
+
+if [ -f package.json ]
+then
+    npm install
+fi

@@ -13,35 +13,42 @@ Docker container used as base for all other Apollo13 docker containers. Contains
 
 Build of this container is located in private Docker hub repository. In order to use private repositories you must provide your login credentials:
 
-	$ docker login
+    docker login
+    docker pull apollo13/ubuntu:14.04
 
 *docker login* needs to be executed just once, as it stores the authentication key in *~/.dockercfg* for future uses.
+
+Alternatively you can build the image on your computer by executing the following command in the root directory
+of the repository:
+
+    docker build -t "apollo13/ubuntu:14.04" .
+
 
 ## Redis configuration database ##
 
 A Redis database is required to store configuration settings.
 
 The Redis database contains two types of configuration values:
- 
-a) *${SERVER_NAME}_config* contains list of settings this container depends on in order to run. The settings list 
+
+a) *${SERVER_NAME}_config* contains list of settings this container depends on in order to run. The settings list
 is whitespace separated, and optionally an alias name for the setting can be provided using syntax *settingName:aliasName*.
 The settings are loaded into environment variables prefixed by *APOLLO13_.*
 
 b) *${SERVER_NAME}_${SETTING_NAME}* - individual settings, for example: rabbitmq001-master_host
- 
+
 *SERVER_NAME* should be an environment variable defined in *Dockerfile* of every container that loads or save configurations settings.
 The *SERVER_NAME* environment variable can be overridden when running the container, e.g. the *-e* parameter of *docker run* or
 environment settings of Amazon ECS tasks.
 
 Configuration values can be set from shell scripts by running:
 
-config-service-set "${SERVER_NAME}_${SETTING_NAME}" ${SETTING_VALUE}
+    config-service-set "${SERVER_NAME}_${SETTING_NAME}" ${SETTING_VALUE}
 
 Example:
 
-	config-service-set "${SERVER_NAME}_host"     "$CONTAINER_IPV4_ADDRESS"
-	config-service-set "${SERVER_NAME}_user"     "$USER"
-	config-service-set "${SERVER_NAME}_password" "$PASS"
+    config-service-set "${SERVER_NAME}_host"     "$CONTAINER_IPV4_ADDRESS"
+    config-service-set "${SERVER_NAME}_user"     "$USER"
+    config-service-set "${SERVER_NAME}_password" "$PASS"
 
 
 ### Production environment ###
@@ -49,26 +56,26 @@ Example:
 In production environment, connection to Redis database must be setup the following S3 bucket:
 
     s3://apollo13-ecs-config/config-service.sh
-    
+
 Example configuration:
-     
+
     APOLLO13_CONFIG_SERVICE_HOST="redis.m5ki6g.ng.0001.euw1.cache.amazonaws.com"
     APOLLO13_CONFIG_SERVICE_PORT=6379
     APOLLO13_CONFIG_SERVICE_PASSWORD=""
     APOLLO13_CONFIG_SERVICE_DB=1
 
 Redis database from Amazon Elasticache service can be used for the above.
-        
+
 ### Development environment ###
 
 Pull and execute redis container:
 
-	$ docker pull redis
-	$ docker run -d -p 6379:6379 --name config-service redis
+    docker pull apollo13/redis-server
+    docker run -d -p 6379:6379 --name config-service redis
 
 Link any container using the configuration service with *-l* (link) parameter while starting the container via docker run, example:
 
-	$ docker run --name rabbitmq-server -d -p 5672:5672 -p 15672:15672 --link config-service:config-service apollo13/rabbitmq-server
+    docker run --name rabbitmq-server -d -p 5672:5672 -p 15672:15672 --link config-service:config-service apollo13/rabbitmq-server
 
 ## Creating new task and manual scaling in Amazon ECS ##
 
@@ -96,11 +103,11 @@ Scaling via API is possible from CLI using [AWS Command Line Interface (includin
 
 To scale up execute *aws ecs run-task,* example:
 
-    $ aws ecs run-task --cluster api --task-definition service-user:1 --count 1 --region eu-west-1
-    
+    aws ecs run-task --cluster api --task-definition service-user:1 --count 1 --region eu-west-1
+
 To scale down execute *aws ecs stop-task,* example:
 
-    $ aws ecs stop-task --cluster api --task arn:aws:ecs:eu-west-1:824947770420:task/acbfc18d-e3d3-4446-b0c2-c5b89ba56adb --region eu-west-1 
+    aws ecs stop-task --cluster api --task arn:aws:ecs:eu-west-1:824947770420:task/acbfc18d-e3d3-4446-b0c2-c5b89ba56adb --region eu-west-1
 
 *--task* parameter value is *taskArn* returned by the *aws ecs run-task* command.
 
@@ -135,7 +142,7 @@ It is possible to update the desired number of tasks for service from CLI using 
 
 Example:
 
-    $ aws ecs update-service --service api-worker --desired-count 10
+    aws ecs update-service --service api-worker --desired-count 10
 
 ## GIT integration ##
 
@@ -156,4 +163,4 @@ To pull from different branch than *master* specify the branch name in the *APOL
 ## Running Docker containers on Linux development host ##
 
 When running Docker on your development host, the TCP/IP ports exposed by Docker may collide with ports of other services already
- running on your development host. The workaround for this is to run Docker inside a virtual machine using [boot2docker](https://github.com/boot2docker/boot2docker-cli).
+running on your development host. The workaround for this is to run Docker inside a virtual machine using [boot2docker](https://github.com/boot2docker/boot2docker-cli).
