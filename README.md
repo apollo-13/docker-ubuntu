@@ -164,3 +164,19 @@ To pull from different branch than *master* specify the branch name in the *APOL
 
 When running Docker on your development host, the TCP/IP ports exposed by Docker may collide with ports of other services already
 running on your development host. The workaround for this is to run Docker inside a virtual machine using [boot2docker](https://github.com/boot2docker/boot2docker-cli).
+
+## Updating the repository and building the project ##
+
+This container contains script for updating the GIT repository to the latest version, and for performing subsequent
+build process (e.g. *composer install* or *npm install*).
+
+Script for updating GIT repository discards all local changes and should not be used if you mount your local repository
+into the container instance. In such case you should only perform build.
+
+To update the repository (discarding all local changes) by pulling the latest revision followed by building of the project, execute:
+
+    docker exec -t -i CONTAINER_NAME_OR_ID /env.sh update.sh
+
+To build the project (without pulling the latest revision), execute:
+
+    docker exec -t -i CONTAINER_NAME_OR_ID /env.sh build.sh

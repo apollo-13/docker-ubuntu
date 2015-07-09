@@ -10,7 +10,7 @@ then
 
     if [ "$APOLLO13_GIT_DIRECTORY" -a "$APOLLO13_GIT_PULL_LATEST" = true -a "$CONTAINER_LAUNCHED" = false ]
     then
-        git-pull.sh
+        update.sh
     fi
 
 fi

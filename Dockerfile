@@ -49,8 +49,10 @@ RUN chmod 755 /usr/local/bin/config-service-*
 
 # Entrypoint for initializing environment variables with container configuration
 ADD bin/env.sh /
+ADD bin/build.sh /usr/local/bin/
 ADD bin/git-pull.sh /usr/local/bin/
-RUN chmod 755 /env.sh /usr/local/bin/git-pull.sh
+ADD bin/update.sh /usr/local/bin/
+RUN chmod 755 /env.sh /usr/local/bin/*.sh
 
 # Access token for reading repositories from GitHub via --prefer-dist to speed up Composer
 ADD config/composer /root/.composer

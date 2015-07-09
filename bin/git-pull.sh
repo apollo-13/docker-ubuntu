@@ -48,8 +48,7 @@ else
 
     if [ $LOCAL_REVISION = $REMOTE_REVISION ]
     then
-        # already running latest revision, do nothing
-        exit 0
+        exit 64 # already running latest revision, do nothing
     fi
 
     echo "Pulling latest $APOLLO13_GIT_DIRECTORY branch $APOLLO13_GIT_BRANCH"
@@ -60,12 +59,4 @@ else
 
 fi
 
-if [ -f composer.json ]
-then
-    composer install --prefer-dist --no-interaction
-fi
-
-if [ -f package.json ]
-then
-    npm install
-fi
+exit 0
