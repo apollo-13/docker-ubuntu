@@ -52,6 +52,12 @@ fi
 export CONTAINER_IPV4_ADDRESS="`ip addr list eth0 | grep "inet "  | cut -d' ' -f6 | cut -d/ -f1`"
 export CONTAINER_IPV6_ADDRESS="`ip addr list eth0 | grep "inet6 " | cut -d' ' -f6 | cut -d/ -f1`"
 
+if [ -f /mnt/host-shared-volume/profile.sh ]
+then
+    # Source Docker host IP address into HOST_IPV4_ADDRESS environment variable in the production environment
+    source /mnt/host-shared-volume/profile.sh
+fi
+
 # Exporting configuration settings from environment for cron jobs
 env | grep "^APOLLO13_" > /etc/profile.d/apollo13.sh
 
