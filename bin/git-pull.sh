@@ -18,6 +18,8 @@ then
 fi
 
 GIT_CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+GIT_REMOTE_REPOSITORY=$(git config --get remote.origin.url)
+UPDATED=false
 
 if [ ${APOLLO13_GIT_BRANCH} != ${GIT_CURRENT_BRANCH} -a -d .git ]
 then
@@ -30,11 +32,12 @@ then
     # check that the directory contains .git to prevent accidental deletion of incorrect directory
     # (i.e. when incorrect environment variables would be set).
 
-    echo "Cloning latest $APOLLO13_GIT_DIRECTORY branch $APOLLO13_GIT_BRANCH"
+    echo "> Cloning latest $APOLLO13_GIT_DIRECTORY branch $APOLLO13_GIT_BRANCH"
 
-    GIT_REMOTE_REPOSITORY=$(git config --get remote.origin.url)
     find -mindepth 1 -delete
     git clone --depth 1 --branch ${APOLLO13_GIT_BRANCH} ${GIT_REMOTE_REPOSITORY} .
+
+    UPDATED=true
 
 else
 
@@ -46,17 +49,46 @@ else
     LOCAL_REVISION=$(git rev-parse @)
     REMOTE_REVISION=$(git rev-parse @{u})
 
-    if [ $LOCAL_REVISION = $REMOTE_REVISION ]
+    if [ $LOCAL_REVISION != $REMOTE_REVISION ]
     then
-        exit 64 # already running latest revision, do nothing
+
+        echo "> Pulling latest $APOLLO13_GIT_DIRECTORY branch $APOLLO13_GIT_BRANCH"
+
+        git checkout origin/$APOLLO13_GIT_BRANCH
+        git branch -D $APOLLO13_GIT_BRANCH
+        git checkout -b $APOLLO13_GIT_BRANCH
+
+        UPDATED=true
+
     fi
 
-    echo "Pulling latest $APOLLO13_GIT_DIRECTORY branch $APOLLO13_GIT_BRANCH"
+fi
 
-    git checkout origin/$APOLLO13_GIT_BRANCH
-    git branch -D $APOLLO13_GIT_BRANCH
-    git checkout -b $APOLLO13_GIT_BRANCH
+if [ "$APOLLO13_GIT_COMMIT_HASH" ]
+then
+    LOCAL_REVISION=$(git rev-parse @)
 
+    # This usually should not happen, requesting a specific commit that is not the newest in the branch. That means
+    # that we are perfoming fallback to and older commit after a deployment of newer commit failed, or a git push has
+    # been in the middle of the deployment.
+    #
+    # The process below is slow. GIT 2.5+ should allow cloning a specific revision in more efficient way.
+
+    if [ $LOCAL_REVISION != "$APOLLO13_GIT_COMMIT_HASH" ]
+    then
+        echo "> Requested revision $APOLLO13_GIT_COMMIT_HASH is not the latest, checking out older revision"
+
+        find -mindepth 1 -delete
+        git clone --branch ${APOLLO13_GIT_BRANCH} ${GIT_REMOTE_REPOSITORY} .
+        git checkout $APOLLO13_GIT_COMMIT_HASH
+
+        UPDATED=true
+    fi
+fi
+
+if [ $UPDATED = false ]
+then
+    exit 64 # already running latest revision, nothing was updated
 fi
 
 exit 0
