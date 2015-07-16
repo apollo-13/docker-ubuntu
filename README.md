@@ -147,7 +147,7 @@ Example:
 ## GIT integration ##
 
 The container can automatically launch *git pull* (and *composer install* too if *composer.json* is present) to
-accomplish launch with the latest code. This functionality is skipped when container is launched in development environment.
+accomplish launch with the latest code.
 
 To enable this functionality you need to define the following environment variables in *Dockerfile* of a container
 derived from *apollo13/ubuntu*
@@ -158,12 +158,16 @@ derived from *apollo13/ubuntu*
 *APOLLO13_GIT_DIRECTORY* contains root path to your GIT project inside the container, *APOLLO13_GIT_PULL_LATEST* enables
 the actual pulling on launching the container.
 
-To pull from different branch than *master* specify the branch name in the *APOLLO13_GIT_BRANCH* environment variable.
+In addition to that you must specify GIT branch to be pulled in APOLLO13_GIT_BRANCH environment variable. This should be
+done when running the container (and not in Dockerfile), so that the docker container can be used for local development.
 
 ## Running Docker containers on Linux development host ##
 
 When running Docker on your development host, the TCP/IP ports exposed by Docker may collide with ports of other services already
 running on your development host. The workaround for this is to run Docker inside a virtual machine using [boot2docker](https://github.com/boot2docker/boot2docker-cli).
+
+In local development environment you have to pass environment variable EC2_ENVIRONMENT=false to the container to disable
+Amazon EC2 specific initialization.
 
 ## Updating the repository and building the project ##
 

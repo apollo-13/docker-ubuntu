@@ -19,5 +19,6 @@ fi
 
 if [ -f package.json ]
 then
-    npm install
+    npm config set registry http://registry.npmjs.org/
+    npm --loglevel info install --no-optional
 fi

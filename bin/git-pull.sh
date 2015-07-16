@@ -88,7 +88,8 @@ fi
 
 if [ $UPDATED = false ]
 then
-    exit 64 # already running latest revision, nothing was updated
+    echo "> Already running latest revision, nothing was updated"
+    exit 0
 fi
 
 exit 0

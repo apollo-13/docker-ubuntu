@@ -52,6 +52,7 @@ ADD bin/env.sh /
 ADD bin/build.sh /usr/local/bin/
 ADD bin/git-pull.sh /usr/local/bin/
 ADD bin/update.sh /usr/local/bin/
+ADD bin/load-config.sh /usr/local/bin/
 RUN chmod 755 /env.sh /usr/local/bin/*.sh
 
 # Access token for reading repositories from GitHub via --prefer-dist to speed up Composer
