@@ -184,3 +184,4 @@ To update the repository (discarding all local changes) by pulling the latest re
 To build the project (without pulling the latest revision), execute:
 
     docker exec -t -i CONTAINER_NAME_OR_ID /env.sh build.sh
+

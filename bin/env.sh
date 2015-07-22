@@ -16,6 +16,14 @@ then
         echo "EC2 container IPV4 address not detected, probably not in Amazon environment. Launch container with EC2_ENVIRONMENT=false enviroment variable."
         exit 1
     fi
+
+    # Start CloudWatch Logs Agent if config file contains at least one additional section except of the [general].
+    if [ `cat /var/awslogs/etc/awslogs.conf | grep -G "^\[" | wc -l` -gt 1 ]
+    then
+        sed -i 's/{server_name}/'"$SERVER_NAME"'/' /var/awslogs/etc/awslogs.conf
+        service awslogs start
+    fi
+
 else
     source /etc/profile
 fi

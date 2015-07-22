@@ -37,6 +37,14 @@ RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.
     rm -rf ./awscli-bundle && \
     rm ./awscli-bundle.zip
 
+# Install CloudWatch Logs Agent
+ADD config/aws/awslogs.conf /tmp/
+RUN curl "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py" -o "/usr/local/bin/awslogs-agent-setup.py" && \
+    chmod +x /usr/local/bin/awslogs-agent-setup.py && \
+    awslogs-agent-setup.py -n -r eu-west-1 -c /tmp/awslogs.conf && \
+    service awslogs stop && \
+    rm -f /tmp/awslogs.conf
+
 # Bash aliases
 RUN echo "alias gitkc=\"git log --graph --oneline --all --decorate --pretty=format:\\\"%C(auto)%h%d %s (%C(green)%cr%C(reset) via %C(green)%cn%C(reset))\\\"\"" >> /etc/bash.bashrc
 
@@ -53,6 +61,7 @@ ADD bin/build.sh /usr/local/bin/
 ADD bin/git-pull.sh /usr/local/bin/
 ADD bin/update.sh /usr/local/bin/
 ADD bin/load-config.sh /usr/local/bin/
+ADD bin/awslogs-add-config.sh /usr/local/bin/
 RUN chmod 755 /env.sh /usr/local/bin/*.sh
 
 # Access token for reading repositories from GitHub via --prefer-dist to speed up Composer
