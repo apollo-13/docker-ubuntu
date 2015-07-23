@@ -8,6 +8,8 @@
 # Example:
 # Make settings 'rabbitmq001-master_host' accessible under alias 'amqp_host'
 # rabbitmq001-master_host:rabbitmq_host
+#
+# Script returns exit status 0 if configuration is not changed, and exit status 1 if configuration is changed.
 
 if [ "$SERVER_NAME" ]
 then
@@ -31,12 +33,18 @@ then
 fi
 
 # Persisting configuration settings from environment for future usage
-echo "" > /etc/profile.d/apollo13.sh
-for configOption in `printenv`
+TMP_FILE=`mktemp`
+echo "" > $TMP_FILE
+for configOption in `printenv | sort`
 do
     if [[ $configOption == APOLLO13*=* ]]
     then
-        echo "export ${configOption}" >> /etc/profile.d/apollo13.sh
+        echo "export ${configOption}" >> $TMP_FILE
     fi
 done
 
+cmp -s $TMP_FILE /etc/profile.d/apollo13.sh
+CONFIGURATION_UPDATED=$?
+mv -f $TMP_FILE /etc/profile.d/apollo13.sh
+
+exit $CONFIGURATION_UPDATED
