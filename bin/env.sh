@@ -56,6 +56,11 @@ fi
 if [ "$CONTAINER_LAUNCHED" = false ]
 then
     config-watcher.sh >> /var/log/config-watcher.log &
+
+    if [ "$APOLLO13_CONTAINER_ONLAUNCH" ]
+    then
+        bash -c "$APOLLO13_CONTAINER_ONLAUNCH"
+    fi
 fi
 
 exec "$@"

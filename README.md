@@ -185,3 +185,8 @@ To build the project (without pulling the latest revision), execute:
 
     docker exec -t -i CONTAINER_NAME_OR_ID /env.sh build.sh
 
+## Launching additional commands on container start ##
+
+The container can optionally launch additional command on its start if passed via APOLLO13_CONTAINER_ONLAUNCH environment variable. The
+command is executed in bash.
+

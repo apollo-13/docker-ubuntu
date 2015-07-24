@@ -27,19 +27,19 @@ then
 		fi
 
 		configOptionEnv="APOLLO13_`echo ${configOptionAlias//-/_} | tr '[:lower:]' '[:upper:]'`"
-		export ${configOptionEnv}=`config-service-get $configOption`
+		export ${configOptionEnv}="`config-service-get $configOption`"
 
 	done
 fi
 
 # Persisting configuration settings from environment for future usage
 TMP_FILE=`mktemp`
-echo "" > $TMP_FILE
-for configOption in `printenv | sort`
+printenv | sort | \
+while read configOption
 do
-    if [[ $configOption == APOLLO13*=* ]]
+    if [[ "$configOption" == APOLLO13*=* ]]
     then
-        echo "export ${configOption}" >> $TMP_FILE
+        printf "export %q\n" "${configOption}" >> $TMP_FILE
     fi
 done
 
