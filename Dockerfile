@@ -64,6 +64,7 @@ ADD bin/load-config.sh /usr/local/bin/
 ADD bin/awslogs-add-config.sh /usr/local/bin/
 ADD bin/service-reload.sh /usr/local/bin/
 ADD bin/config-watcher.sh /usr/local/bin/
+ADD bin/wait-for-service.sh /usr/local/bin/
 RUN chmod 755 /env.sh /usr/local/bin/*.sh
 
 # Access token for reading repositories from GitHub via --prefer-dist to speed up Composer
