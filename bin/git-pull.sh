@@ -49,7 +49,7 @@ else
     LOCAL_REVISION=$(git rev-parse @)
     REMOTE_REVISION=$(git rev-parse @{u})
 
-    if [ $LOCAL_REVISION != $REMOTE_REVISION ]
+    if [ "$LOCAL_REVISION" != "$REMOTE_REVISION" ]
     then
 
         echo "> Pulling latest $APOLLO13_GIT_DIRECTORY branch $APOLLO13_GIT_BRANCH"
@@ -74,7 +74,7 @@ then
     #
     # The process below is slow. GIT 2.5+ should allow cloning a specific revision in more efficient way.
 
-    if [ $LOCAL_REVISION != "$APOLLO13_GIT_COMMIT_HASH" ]
+    if [ "$LOCAL_REVISION" != "$APOLLO13_GIT_COMMIT_HASH" ]
     then
         echo "> Requested revision $APOLLO13_GIT_COMMIT_HASH is not the latest, checking out older revision"
 
