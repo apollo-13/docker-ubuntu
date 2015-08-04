@@ -1,3 +1,8 @@
 #!/bin/bash
 
-git-pull.sh && build.sh
+git-pull.sh $APOLLO13_GIT_DIRECTORY && build.sh $APOLLO13_GIT_DIRECTORY
+
+if [ "$APOLLO13_GIT_DIRECTORY_EXTRA" ]
+then
+    git-pull.sh $APOLLO13_GIT_DIRECTORY_EXTRA && build.sh $APOLLO13_GIT_DIRECTORY_EXTRA
+fi

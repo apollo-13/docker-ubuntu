@@ -1,5 +1,7 @@
 #!/bin/bash
 
+APOLLO13_GIT_DIRECTORY=${1:-$APOLLO13_GIT_DIRECTORY}
+
 if [ -z "$APOLLO13_GIT_DIRECTORY" ]
 then
     echo "Error: \$APOLLO13_GIT_DIRECTORY not defined, cannot perform build."

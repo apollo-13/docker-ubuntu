@@ -3,6 +3,7 @@
 # This script performs 'git pull' in the directory $APOLLO13_GIT_DIRECTORY and executes 'composer install'
 # if composer.json file is present in the director.
 
+APOLLO13_GIT_DIRECTORY=${1:-$APOLLO13_GIT_DIRECTORY}
 APOLLO13_GIT_BRANCH=${APOLLO13_GIT_BRANCH:-master}
 
 if [ -z "$APOLLO13_GIT_DIRECTORY" ]
