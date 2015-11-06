@@ -7,10 +7,16 @@ if [ "$CONTAINER_LAUNCHED" = false -a "$EC2_ENVIRONMENT" != false ]
 then
     # Load config service connection details
     AWS_REGION=eu-west-1
-    EC2_INSTANCE_ID=`curl -s --connect-timeout 30 http://169.254.169.254/latest/meta-data/instance-id`
-    EC2_VPC_ID=`aws --region $AWS_REGION ec2 describe-instances --instance-ids $EC2_INSTANCE_ID | grep \"VpcId\" | head -1 | cut -d: -f2 | sed 's/[^a-zA-Z0-9_-]*//g'`
-    EC2_ENVIRONMENT_TAG=`aws --region $AWS_REGION ec2 describe-tags --filters Name=resource-type,Values=instance Name=resource-id,Values=$EC2_INSTANCE_ID Name=key,Values=Environment | grep \"Value\" | head -1 | cut -d: -f2 | sed 's/[^a-zA-Z0-9_-]*//g'`
-    aws s3 cp s3://apollo13-ecs-config/config-service_${EC2_VPC_ID}_${EC2_ENVIRONMENT_TAG}.sh /etc/profile.d/config-service.sh && source /etc/profile
+
+    if [ -z "APOLLO13_EC2_CONFIG_SERVICE_S3_PATH" ]
+    then
+        EC2_INSTANCE_ID=`curl -s --connect-timeout 30 http://169.254.169.254/latest/meta-data/instance-id`
+        EC2_VPC_ID=`aws --region $AWS_REGION ec2 describe-instances --instance-ids $EC2_INSTANCE_ID | grep \"VpcId\" | head -1 | cut -d: -f2 | sed 's/[^a-zA-Z0-9_-]*//g'`
+        EC2_ENVIRONMENT_TAG=`aws --region $AWS_REGION ec2 describe-tags --filters Name=resource-type,Values=instance Name=resource-id,Values=$EC2_INSTANCE_ID Name=key,Values=Environment | grep \"Value\" | head -1 | cut -d: -f2 | sed 's/[^a-zA-Z0-9_-]*//g'`
+        APOLLO13_EC2_CONFIG_SERVICE_S3_PATH="apollo13-ecs-config/config-service_${EC2_VPC_ID}_${EC2_ENVIRONMENT_TAG}.sh"
+    fi
+
+    aws s3 cp "s3://${APOLLO13_EC2_CONFIG_SERVICE_S3_PATH}" /etc/profile.d/config-service.sh && source /etc/profile
 
     export HOST_IPV4_ADDRESS="`curl -s --connect-timeout 30 http://169.254.169.254/latest/meta-data/local-ipv4`"
     export HOST_PUBLIC_IPV4_ADDRESS="`curl -s --connect-timeout 30 http://169.254.169.254/latest/meta-data/public-ipv4`"
