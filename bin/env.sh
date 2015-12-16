@@ -8,7 +8,7 @@ then
     # Load config service connection details
     AWS_REGION=eu-west-1
 
-    if [ -z "APOLLO13_EC2_CONFIG_SERVICE_S3_PATH" ]
+    if [ -z "$APOLLO13_EC2_CONFIG_SERVICE_S3_PATH" ]
     then
         EC2_INSTANCE_ID=`curl -s --connect-timeout 30 http://169.254.169.254/latest/meta-data/instance-id`
         EC2_VPC_ID=`aws --region $AWS_REGION ec2 describe-instances --instance-ids $EC2_INSTANCE_ID | grep \"VpcId\" | head -1 | cut -d: -f2 | sed 's/[^a-zA-Z0-9_-]*//g'`
@@ -42,7 +42,13 @@ else
     source /etc/profile
 fi
 
-export CONTAINER_IPV4_ADDRESS="`ip addr list eth0 | grep "inet "  | cut -d' ' -f6 | cut -d/ -f1`"
+if [ -z "$TUTUM_IP_ADDRESS" ]
+then
+    export CONTAINER_IPV4_ADDRESS="`ip addr list eth0 | grep "inet "  | cut -d' ' -f6 | cut -d/ -f1`"
+else
+    export CONTAINER_IPV4_ADDRESS="`echo $TUTUM_IP_ADDRESS | cut -d/ -f 1`"
+fi
+
 export CONTAINER_IPV6_ADDRESS="`ip addr list eth0 | grep "inet6 " | cut -d' ' -f6 | cut -d/ -f1`"
 export HOST_IPV4_ADDRESS=${HOST_IPV4_ADDRESS:-${CONTAINER_IPV4_ADDRESS}}
 export HOST_PUBLIC_IPV4_ADDRESS=${HOST_PUBLIC_IPV4_ADDRESS:-${HOST_IPV4_ADDRESS}}
