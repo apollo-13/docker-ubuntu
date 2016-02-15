@@ -6,9 +6,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Setting TERM to flawlessly run console applications like mc, nano when connecting interactively via docker exec
     TERM=xterm
 
-# Copy SSH key for accessing GIT repositories
-COPY config/ssh-keys/id_rsa /root/.ssh/id_rsa
-
 # Prepare config file for CloudWatch Logs Agent
 COPY config/aws/awslogs.conf /tmp/
 
@@ -27,11 +24,6 @@ RUN apt-get update && \
         curl \
         python \
         telnet && \
-
-# Install SSH key for accessing GIT repositories
-    chmod 600 /root/.ssh/id_rsa && \
-    touch /root/.ssh/known_hosts && \
-    ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts && \
 
 # Install AWS CLI
     curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && \
@@ -57,8 +49,5 @@ RUN apt-get update && \
 COPY config-service/* bin/build.sh bin/git-pull.sh bin/update.sh bin/load-config.sh bin/awslogs-add-config.sh bin/service-reload.sh bin/config-watcher.sh bin/wait-for-service.sh /usr/local/bin/
 
 COPY bin/env.sh /
-
-# Access token for reading repositories from GitHub via --prefer-dist to speed up Composer
-COPY config/composer /root/.composer
 
 ENTRYPOINT [ "/env.sh" ]
