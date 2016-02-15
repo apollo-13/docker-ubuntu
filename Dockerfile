@@ -1,7 +1,16 @@
 FROM ubuntu:14.04
-MAINTAINER Bohdan Kolecek <bohdan.kolecek@apollo13.cz>
+MAINTAINER Bohdan Kolecek <kolecek@apollo13.cz>
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+
+# Setting TERM to flawlessly run console applications like mc, nano when connecting interactively via docker exec
+    TERM=xterm
+
+# Copy SSH key for accessing GIT repositories
+COPY config/ssh-keys/id_rsa /root/.ssh/id_rsa
+
+# Prepare config file for CloudWatch Logs Agent
+COPY config/aws/awslogs.conf /tmp/
 
 # Install:
 # 1. GIT for accessing repositories
@@ -18,57 +27,38 @@ RUN apt-get update && \
         curl \
         python \
         telnet && \
-# Clean up
-
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install SSH key for accessing GIT repositories
-RUN mkdir /root/.ssh/
-ADD config/ssh-keys/id_rsa /root/.ssh/id_rsa
-RUN chmod 600 /root/.ssh/id_rsa && \
+    chmod 600 /root/.ssh/id_rsa && \
     touch /root/.ssh/known_hosts && \
-    ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
+    ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts && \
 
 # Install AWS CLI
-RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && \
+    curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && \
     unzip awscli-bundle.zip && \
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
     rm -rf ./awscli-bundle && \
-    rm ./awscli-bundle.zip
+    rm ./awscli-bundle.zip && \
 
 # Install CloudWatch Logs Agent
-ADD config/aws/awslogs.conf /tmp/
-RUN curl "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py" -o "/usr/local/bin/awslogs-agent-setup.py" && \
+    curl "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py" -o "/usr/local/bin/awslogs-agent-setup.py" && \
     chmod +x /usr/local/bin/awslogs-agent-setup.py && \
     awslogs-agent-setup.py -n -r eu-west-1 -c /tmp/awslogs.conf && \
-    service awslogs stop && \
-    rm -f /tmp/awslogs.conf
+    service awslogs stop && \    
 
 # Bash aliases
-RUN echo "alias gitkc=\"git log --graph --oneline --all --decorate --pretty=format:\\\"%C(auto)%h%d %s (%C(green)%cr%C(reset) via %C(green)%cn%C(reset))\\\"\"" >> /etc/bash.bashrc
+    echo "alias gitkc=\"git log --graph --oneline --all --decorate --pretty=format:\\\"%C(auto)%h%d %s (%C(green)%cr%C(reset) via %C(green)%cn%C(reset))\\\"\"" >> /etc/bash.bashrc && \
 
-# Setting TERM to flawlessly run console applications like mc, nano when connecting interactively via docker exec
-ENV TERM xterm
+# Clean up
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Add client for configuration service
-ADD config-service /usr/local/bin
-RUN chmod 755 /usr/local/bin/config-service-*
+# Add client for configuration service, entrypoint for initializing environment variables with container configuration, etc.
+COPY config-service/* bin/build.sh bin/git-pull.sh bin/update.sh bin/load-config.sh bin/awslogs-add-config.sh bin/service-reload.sh bin/config-watcher.sh bin/wait-for-service.sh /usr/local/bin/
 
-# Entrypoint for initializing environment variables with container configuration
-ADD bin/env.sh /
-ADD bin/build.sh /usr/local/bin/
-ADD bin/git-pull.sh /usr/local/bin/
-ADD bin/update.sh /usr/local/bin/
-ADD bin/load-config.sh /usr/local/bin/
-ADD bin/awslogs-add-config.sh /usr/local/bin/
-ADD bin/service-reload.sh /usr/local/bin/
-ADD bin/config-watcher.sh /usr/local/bin/
-ADD bin/wait-for-service.sh /usr/local/bin/
-RUN chmod 755 /env.sh /usr/local/bin/*.sh
+COPY bin/env.sh /
 
 # Access token for reading repositories from GitHub via --prefer-dist to speed up Composer
-ADD config/composer /root/.composer
+COPY config/composer /root/.composer
 
 ENTRYPOINT [ "/env.sh" ]
-
