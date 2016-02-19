@@ -42,11 +42,11 @@ else
     source /etc/profile
 fi
 
-if [ -z "$TUTUM_IP_ADDRESS" ]
+if [ -z "$DOCKERCLOUD_IP_ADDRESS" ]
 then
     export CONTAINER_IPV4_ADDRESS="`ip addr list eth0 | grep "inet "  | cut -d' ' -f6 | cut -d/ -f1`"
 else
-    export CONTAINER_IPV4_ADDRESS="`echo $TUTUM_IP_ADDRESS | cut -d/ -f 1`"
+    export CONTAINER_IPV4_ADDRESS="`echo $DOCKERCLOUD_IP_ADDRESS | cut -d/ -f 1`"
 fi
 
 export CONTAINER_IPV6_ADDRESS="`ip addr list eth0 | grep "inet6 " | cut -d' ' -f6 | cut -d/ -f1`"
