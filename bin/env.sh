@@ -66,6 +66,11 @@ then
     update.sh
 fi
 
+if [ "$APOLLO13_GIT_DIRECTORY" ]
+then
+    export APOLLO13_GIT_VERSION_TAG=$(cd $APOLLO13_GIT_DIRECTORY && git tag --points-at HEAD | grep -P "^v?\d" | head -n 1 | sed 's~^v~~')
+fi
+
 if [ "$CONTAINER_LAUNCHED" = false ]
 then
     config-watcher.sh >> /var/log/config-watcher.log &
