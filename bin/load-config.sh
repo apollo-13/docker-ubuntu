@@ -34,6 +34,7 @@ fi
 
 # Persisting configuration settings from environment for future usage
 TMP_FILE=`mktemp`
+chmod 644 $TMP_FILE
 printenv | sort | \
 while read configOption
 do
