@@ -27,17 +27,6 @@ then
         exit 1
     fi
 
-    for file in /var/awslogs/etc/*
-    do
-        sed -i 's/{server_name}/'"$SERVER_NAME"'/' $file
-    done
-
-    # Start CloudWatch Logs Agent if config file contains at least one additional section except of the [general].
-    if [ `cat /var/awslogs/etc/awslogs.conf | grep -G "^\[" | wc -l` -gt 1 ]
-    then
-        service awslogs start
-    fi
-
 else
     source /etc/profile
 fi
